@@ -21,6 +21,9 @@ module "eks" {
 
       instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
+      iam_role_additional_policies = {
+        CloudWatchAgent = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+      }
     }
   }
 
@@ -53,6 +56,11 @@ module "eks" {
     metrics-server = {
       most_recent = true
     }
+    
+    amazon-cloudwatch-observability = {
+      most_recent = true
+      service_account_role_arn = module.cloudwatch_observability_irsa.iam_role_arn
+    }
   }
 
   tags = {
@@ -75,3 +83,22 @@ module "ebs_csi_irsa" {
     }
   }
 }
+
+module "cloudwatch_observability_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+
+  role_name = "AmazonCloudWatchObservabilityIRSA"
+
+  attach_cloudwatch_observability_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn = module.eks.oidc_provider_arn
+      namespace_service_accounts = [
+        "amazon-cloudwatch/cloudwatch-agent",
+        "amazon-cloudwatch/fluent-bit"
+      ]
+    }
+  }
+}
+
