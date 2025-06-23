@@ -6,4 +6,5 @@ resource "helm_release" "static-web" {
   chart      = "static-web"
   version    = "0.1.0"
 
+  depends_on = [helm_release.alb_controller]
 }
