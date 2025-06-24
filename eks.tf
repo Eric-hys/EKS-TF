@@ -95,8 +95,8 @@ module "cloudwatch_observability_irsa" {
     main = {
       provider_arn = module.eks.oidc_provider_arn
       namespace_service_accounts = [
-        "amazon-cloudwatch/cloudwatch-agent",
-        "amazon-cloudwatch/fluent-bit"
+        "amazon-cloudwatch:cloudwatch-agent",
+        "amazon-cloudwatch:fluent-bit"
       ]
     }
   }
